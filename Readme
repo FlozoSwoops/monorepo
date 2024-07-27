@@ -1,0 +1,25 @@
+Tasks
+
+1) Dockerize hello world flask 
+    - MVP: standard flask app
+    - Reach: Unit test
+2) upload to container registry
+3) Terraform infrastructure workspace for: 
+    - MVP: app hosted on ec2 instance running docker
+    - Reach: app hosted on eks backend only reachable via nginx reverse proxy on original vm
+4) Terraform app workspace to deploy k8 objects
+    - MVP: defined k8 objects
+    - Reach: create and use helm chart
+5) create pipeline to automate image upload and creation of tf resources
+    - create service account with min permissions
+        - W/R/M S3
+        - EKS Admin / Cluster Admin
+        - Compute Storage admin
+        - EC2 admin
+    - Store credentials in 
+
+Manual Prereq:
+1) S3 storage configured for tf backend
+2) Terraform, Jenkins and this repo are on machine
+3) ECR is already created
+4) I have given required credentials for account with necessary viewer permissions
