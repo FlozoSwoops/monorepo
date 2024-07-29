@@ -6,7 +6,7 @@ RUN pip3 install flask
 
 COPY . /app
 
-RUN mkdir /logs
+# RUN mkdir /logs
 
 ENTRYPOINT ["python3"]
 CMD ["app.py"]

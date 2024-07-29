@@ -1,13 +1,13 @@
 from flask import Flask
-import logging
+# import logging
 
 app = Flask(__name__)
 
-logging.basicConfig(filename="/logs/flask.log", level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
+# logging.basicConfig(filename="/logs/flask.log", level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 
 @app.route("/")
 def helloworld():
-    logging.info("Hello World")
+    # logging.info("Hello World")
     return "Hello World!"
 
 
