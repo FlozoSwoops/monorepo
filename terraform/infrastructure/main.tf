@@ -3,6 +3,7 @@ locals {
   env = "dev"
 }
 
+#Create Networking Resources
 module "vpc" {
   source            = "../modules/networking"
   cidr_block        = "10.0.0.0/16"
@@ -11,6 +12,8 @@ module "vpc" {
   availability_zones = ["us-east-1a", "us-east-1b"]
 }
 
+
+#Create Cluster and Managed Node Group
 module "eks" {
   source          = "../modules/k8"
   name = local.name
@@ -19,13 +22,3 @@ module "eks" {
   
 
 }
-
-# resource "aws_ebs_volume" "log_volume" {
-#   availability_zone = "us-west-2a"
-#   size              = 10
-#   type              = "gp2"
-
-#   tags = {
-#     Name = "eks-log-volume"
-#   }
-# }

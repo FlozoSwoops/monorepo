@@ -1,0 +1,78 @@
+---
+- name: CI/CD Pipeline
+  hosts: localhost
+  vars:
+    repo_url: "https://github.com/FlozoSwoops/monorepo.git"
+    tmp_dir: "/tmp/repo"
+    image_name: "sample-flask-app"
+    aws_region: "us-east-1"
+    aws_account_id: "546541384184"
+    terraform_infra: "/tmp/repo/terraform/infrastructure"
+    terraform_app: "/tmp/repo/terraform/app"
+    app_dir: "/tmp/repo/app"
+    ecr_registry_url: "546541384184.dkr.ecr.us-east-1.amazonaws.com"
+  tasks:
+    - name: Clone Git repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ tmp_dir }}"
+        force: yes
+
+    - name: Configure AWS-CLI
+      shell: aws configure import --csv file://assessment-user_accessKeys.csv
+
+    # - name: Export Assessment User
+    #   shell: export AWS_PROFILE="assessment-user"
+
+    - name: Build Docker image
+      command: docker build --platform linux/amd64 -t {{ image_name }} .
+      args:
+        chdir: "{{ app_dir }}"
+
+    - name: Tag Docker image for ECR
+      command: docker tag {{ image_name }} {{ aws_account_id }}.dkr.ecr.{{ aws_region }}.amazonaws.com/{{ image_name }}:latest
+
+
+    - name: login for AWS ECR
+      shell: |
+        export AWS_PROFILE="assessment-user"
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 546541384184.dkr.ecr.us-east-1.amazonaws.com
+
+    - name: Push Docker image to ECR
+      command: docker push {{ aws_account_id }}.dkr.ecr.{{ aws_region }}.amazonaws.com/{{ image_name }}:latest
+
+    - name: Initialize Infra Terraform
+      command: terraform init
+      environment:
+        AWS_PROFILE: assessment-user
+      args:
+        chdir: "{{ terraform_infra }}"
+
+    - name: Apply Infra Terraform
+      command: terraform apply -auto-approve
+      environment:
+        AWS_PROFILE: assessment-user
+      args:
+        chdir: "{{ terraform_infra }}"
+
+    - name: Initialize App Terraform
+      command: terraform init
+      environment:
+        AWS_PROFILE: assessment-user
+      args:
+        chdir: "{{ terraform_app }}"
+
+    - name: Apply App Terraform
+      command: terraform apply -auto-approve
+      environment:
+        AWS_PROFILE: assessment-user
+      args:
+        chdir: "{{ terraform_app }}"
+
+    - name: Add cluster to kube config
+      command: aws eks --region us-east-1 update-kubeconfig --name cyware-assessment-eks-dev
+      environment:
+        AWS_PROFILE: assessment-user
+
+    - name: Rollout New Version
+      command: kubectl rollout restart deployment flaskapp-deployment

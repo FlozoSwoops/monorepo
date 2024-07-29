@@ -1,3 +1,36 @@
+Steps to create infra
+
+1) Clone this repo
+2) cd into pipeline folder
+3) run `ansible-playbook pipeline.yml
+4) Navigate to LB DNS in Browser.
+    - Currently http://a3f6c0666c1e24f79b234ce6554aea1d-768147784.us-east-1.elb.amazonaws.com/
+
+
+Process
+
+1) pipeline downloads master git branch to /tmp
+2) Flask app is built and uploaded to AWS ECR
+3) Infrastucture terraform creaates:
+    - VPC Components
+    - Cluster IAM
+    - Cluster and Node Group
+4) App terraform deploys app and service
+5) app should be reachable from <LB DNS>
+
+ToDo
+1) Implement Dynamic Storage Class for storage
+2) Secure cluster traffic by limiting incoming traffic to nginx reverse proxy
+3) Implement ssh keys to access Node Group
+4) Improve Secret Handling of user credentials
+5) Store k8 outputs in key vault and remove remote state 
+6) implement state locking with dynamo db table
+7) create appropriate security rules for node group traffic
+8) limit permissions on service account to least required permissions.
+9) Deploy off of tag which requires incrementing.
+
+
+
 Tasks
 
 1) Dockerize hello world flask 

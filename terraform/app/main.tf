@@ -36,6 +36,7 @@ resource "kubernetes_deployment_v1" "flaskapp" {
     }
 }
 
+#Kuberetes LB Service 
 resource "kubernetes_service_v1" "lb_service" {
   metadata {
     name = "flaskapp-lb-service"
@@ -52,4 +53,3 @@ resource "kubernetes_service_v1" "lb_service" {
     type = "LoadBalancer"
   }
 }
-

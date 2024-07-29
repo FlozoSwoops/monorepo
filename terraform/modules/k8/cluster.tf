@@ -1,3 +1,8 @@
+#######################
+####Cluster-Node#######
+#######################
+
+#Cluster Resource
 resource "aws_eks_cluster" "eks_cluster" {
   name     = "${var.name}-eks-${var.env}"
   role_arn = aws_iam_role.eks_master_role.arn
@@ -14,11 +19,9 @@ resource "aws_eks_cluster" "eks_cluster" {
     service_ipv4_cidr = "172.20.0.0/16"
   }
   
-  # Enable EKS Cluster Control Plane Logging
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
-  # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
-  # Otherwise, EKS will not be able to properly delete EKS managed EC2 infrastructure such as Security Groups.
+
   depends_on = [
     aws_iam_role_policy_attachment.eks-AmazonEKSClusterPolicy,
     aws_iam_role_policy_attachment.eks-AmazonEKSVPCResourceController,
@@ -26,7 +29,7 @@ resource "aws_eks_cluster" "eks_cluster" {
 }
 
 
-#public node group
+#Node Group Resource 
 resource "aws_eks_node_group" "eks_ng_public" {
   cluster_name    = aws_eks_cluster.eks_cluster.name
 
@@ -38,11 +41,6 @@ resource "aws_eks_node_group" "eks_ng_public" {
   capacity_type = "ON_DEMAND"
   disk_size = 20
   instance_types = ["t3.medium"]
-  
-  
-#   remote_access {
-#     ec2_ssh_key = "eks-terraform-key"
-#   }
 
   scaling_config {
     desired_size = 1
